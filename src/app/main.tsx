@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Header from './component/header';
 
@@ -32,7 +32,14 @@ export default function Main() {
   const [esBlewah, setEsBlewah] = useState(0);
   const [esCampur, setEsCampur] = useState(0);
   const [catatan, setCatatan] = useState('');
-  const [orderan, setOrderan] = useState<OrderanProps[]>([]);
+
+  const [orderan, setOrderan] = useState<OrderanProps[]>(() => {
+    if (typeof window !== 'undefined') {
+      const savedData = localStorage.getItem('penjualan-es');
+      return savedData ? JSON.parse(savedData) : [];
+    }
+    return [];
+  });
 
   const handleEsBlewah = () => {
     setEsBlewah(esBlewah + 1);
@@ -61,33 +68,33 @@ export default function Main() {
     });
   };
 
-  // const formatWaktu = (value: string | Date) => {
-  //   const date = new Date(value);
+  const formatWaktu = (value: string) => {
+    const date = new Date(value);
 
-  //   const detik = date.getSeconds().toString().padStart(2, '0');
-  //   const jam = date.getHours().toString().padStart(2, '0');
-  //   const menit = date.getMinutes().toString().padStart(2, '0');
-  //   const hari = date.getDate().toString().padStart(2, '0');
+    const detik = date.getSeconds().toString().padStart(2, '0');
+    const jam = date.getHours().toString().padStart(2, '0');
+    const menit = date.getMinutes().toString().padStart(2, '0');
+    const hari = date.getDate().toString().padStart(2, '0');
 
-  //   const bulan = [
-  //     'Januari',
-  //     'Februari',
-  //     'Maret',
-  //     'April',
-  //     'Mei',
-  //     'Juni',
-  //     'Juli',
-  //     'Agustus',
-  //     'September',
-  //     'Oktober',
-  //     'November',
-  //     'Desember',
-  //   ][date.getMonth()];
+    const bulan = [
+      'Januari',
+      'Februari',
+      'Maret',
+      'April',
+      'Mei',
+      'Juni',
+      'Juli',
+      'Agustus',
+      'September',
+      'Oktober',
+      'November',
+      'Desember',
+    ][date.getMonth()];
 
-  //   const tahun = date.getFullYear();
+    const tahun = date.getFullYear();
 
-  //   return `${jam}:${menit}:${detik}, ${hari} ${bulan} ${tahun}`;
-  // };
+    return `${jam}:${menit}:${detik}, ${hari} ${bulan} ${tahun}`;
+  };
 
   const handleOrder = () => {
     const newOrder = {
@@ -96,7 +103,7 @@ export default function Main() {
       esCampur,
       catatan,
       status: false,
-      dateTime: new Date().toLocaleString(),
+      dateTime: new Date().toISOString(),
     };
     setOrderan([...orderan, newOrder]);
     setEsBlewah(0);
@@ -153,9 +160,29 @@ export default function Main() {
     setIsEditMode(false);
   };
 
+  const handleResetOrderan = () => {
+    localStorage.removeItem('penjualan-es');
+    setOrderan([]); // Mengosongkan orderan
+  };
+
+  // Di dalam komponen Main:
+  useEffect(() => {
+    // Load data dari localStorage saat komponen mount
+    const savedData = localStorage.getItem('penjualan-es');
+    if (savedData) {
+      setOrderan(JSON.parse(savedData));
+    }
+  }, []);
+
+  useEffect(() => {
+    // Simpan ke localStorage setiap kali orderan berubah
+    localStorage.setItem('penjualan-es', JSON.stringify(orderan));
+  }, [orderan]);
+
   return (
     <>
       <main className="flex min-h-screen w-full flex-col items-center px-6 md:px-20 lg:px-40 py-10 bg-[#FFCDB2]">
+        {/* Section Header */}
         <Header />
         {/* Section Tambah Orderan */}
         <div
@@ -295,8 +322,7 @@ export default function Main() {
                   </span>
                 </div>
                 <p className="text-lg text-[#EB5A3C]">
-                  {/* {formatWaktu(order.dateTime)} */}
-                  {order.dateTime}
+                  {formatWaktu(order.dateTime)}
                 </p>
                 <div className="flex flex-col gap-2">
                   <div className="flex flex-row gap-2">
@@ -362,6 +388,38 @@ export default function Main() {
               </div>
             ))}
         </div>
+        {/* Button Reset */}
+
+        <Dialog>
+          <DialogTrigger asChild>
+            <button className="bg-[#BE5985] text-white mt-10 px-4 py-2 rounded-lg w-full cursor-pointer hover:bg-[#be5985d2]">
+              Reset Orderan
+            </button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Reset Order</DialogTitle>
+              <DialogDescription>
+                Apakah anda yakin ingin me reset orderan ini?
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <DialogClose asChild>
+                <button className="bg-[#BE5985] text-white px-4 py-2 rounded-lg w-full cursor-pointer hover:bg-[#be5985d2]">
+                  Batal
+                </button>
+              </DialogClose>
+              <DialogClose asChild>
+                <button
+                  onClick={handleResetOrderan}
+                  className="bg-[#EB5A3C] text-white px-4 py-2 rounded-lg w-full cursor-pointer hover:bg-[#eb593ce7]"
+                >
+                  Ya, Lakukan Reset
+                </button>
+              </DialogClose>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </main>
     </>
   );
