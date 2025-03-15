@@ -6,6 +6,17 @@ import Header from './component/header';
 import EsBlewah from '@/assets/es-blewah.jpg';
 import EsCampur from '@/assets/es-campur.webp';
 
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose,
+  DialogFooter,
+} from '@/components/ui/dialog';
+
 interface OrderanProps {
   nomor: number;
   esBlewah: number;
@@ -16,6 +27,8 @@ interface OrderanProps {
 }
 
 export default function Main() {
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [nomor, setNomor] = useState<Number | null>(null);
   const [esBlewah, setEsBlewah] = useState(0);
   const [esCampur, setEsCampur] = useState(0);
   const [catatan, setCatatan] = useState('');
@@ -25,8 +38,20 @@ export default function Main() {
     setEsBlewah(esBlewah + 1);
   };
 
+  const handleEsBlewahKurang = () => {
+    if (esBlewah > 0) {
+      setEsBlewah(esBlewah - 1);
+    }
+  };
+
   const handleEsCampur = () => {
     setEsCampur(esCampur + 1);
+  };
+
+  const handleEsCampurKurang = () => {
+    if (esCampur > 0) {
+      setEsCampur(esCampur - 1);
+    }
   };
 
   const formatUang = (value: number) => {
@@ -36,8 +61,32 @@ export default function Main() {
     });
   };
 
-  const formatWaktu = (value: string) => {
-    return new Date(value).toLocaleString();
+  const formatWaktu = (value: string | Date) => {
+    const date = new Date(value);
+
+    const detik = date.getSeconds().toString().padStart(2, '0');
+    const jam = date.getHours().toString().padStart(2, '0');
+    const menit = date.getMinutes().toString().padStart(2, '0');
+    const hari = date.getDate().toString().padStart(2, '0');
+
+    const bulan = [
+      'Januari',
+      'Februari',
+      'Maret',
+      'April',
+      'Mei',
+      'Juni',
+      'Juli',
+      'Agustus',
+      'September',
+      'Oktober',
+      'November',
+      'Desember',
+    ][date.getMonth()];
+
+    const tahun = date.getFullYear();
+
+    return `${jam}:${menit}:${detik}, ${hari} ${bulan} ${tahun}`;
   };
 
   const handleOrder = () => {
@@ -54,12 +103,65 @@ export default function Main() {
     setEsCampur(0);
     setCatatan('');
   };
+
+  const handleHapusOrder = (nomor: number) => {
+    const updatedOrderan = orderan.filter((order) => order.nomor !== nomor);
+    setOrderan(updatedOrderan);
+  };
+
+  const handleEditMode = (item: any) => {
+    const order = orderan.find((order) => order.nomor === item.nomor);
+    if (order) {
+      setNomor(order.nomor);
+      setEsBlewah(order.esBlewah);
+      setEsCampur(order.esCampur);
+      setCatatan(order.catatan);
+      setIsEditMode(true);
+      // scroll to #form
+      const form = document.getElementById('form');
+      if (form) {
+        form.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
+
+  const handleBatalEditMode = () => {
+    setEsBlewah(0);
+    setEsCampur(0);
+    setCatatan('');
+    setNomor(null);
+    setIsEditMode(false);
+  };
+
+  const handleEditOrder = () => {
+    const updatedOrderan = orderan.map((order) => {
+      if (order.nomor === nomor) {
+        return {
+          ...order,
+          esBlewah,
+          esCampur,
+          catatan,
+        };
+      }
+      return order;
+    });
+    setOrderan(updatedOrderan);
+    setEsBlewah(0);
+    setEsCampur(0);
+    setCatatan('');
+    setNomor(null);
+    setIsEditMode(false);
+  };
+
   return (
     <>
       <main className="flex min-h-screen w-full flex-col items-center px-6 md:px-20 lg:px-40 py-10 bg-[#FFCDB2]">
         <Header />
         {/* Section Tambah Orderan */}
-        <div className="flex flex-col items-stretch border bg-white border-2 border-[#EB5A3C] w-full lg:max-w-2xl mt-10 min-h-16 rounded-2xl p-4 gap-8">
+        <div
+          id="form"
+          className="flex flex-col items-stretch border bg-white border-2 border-[#EB5A3C] w-full lg:max-w-2xl mt-10 min-h-16 rounded-2xl p-4 gap-8"
+        >
           <div
             className="flex flex-col lg:flex-row gap-8 lg:items-center justify-between
 "
@@ -68,7 +170,7 @@ export default function Main() {
               <Image
                 src={EsBlewah}
                 alt="Es Blewah"
-                className="w-28 h-28 object-cover rounded-xl"
+                className="w-24 sm:w-28 h-24 sm:h-28 object-cover rounded-xl"
               />
               <div className="flex flex-col grow">
                 <p className="text-2xl font-bold text-[#EB5A3C]">Es Blewah</p>
@@ -76,19 +178,27 @@ export default function Main() {
                 <p className="text-lg text-[#EB5A3C]">
                   Jumlah : <span className="font-bold">{esBlewah}</span>
                 </p>
-                <button
-                  onClick={handleEsBlewah}
-                  className="bg-[#EB5A3C] text-white px-4 py-2 rounded-lg mt-2 cursor-pointer hover:bg-[#eb593ce7] "
-                >
-                  Tambah
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleEsBlewah}
+                    className="bg-[#EB5A3C] grow text-white px-4 py-2 rounded-lg mt-2 cursor-pointer hover:bg-[#eb593ce7] "
+                  >
+                    +
+                  </button>
+                  <button
+                    onClick={handleEsBlewahKurang}
+                    className="bg-[#EB5A3C] grow text-white px-4 py-2 rounded-lg mt-2 cursor-pointer hover:bg-[#eb593ce7] "
+                  >
+                    -
+                  </button>
+                </div>
               </div>
             </div>
             <div className="flex grow items-center gap-4">
               <Image
                 src={EsCampur}
                 alt="Es Campur"
-                className="w-28 h-28 object-cover rounded-xl"
+                className="w-24 sm:w-28 h-24 sm:h-28 object-cover rounded-xl"
               />
               <div className="flex flex-col grow">
                 <p className="text-2xl font-bold text-[#EC7FA9]">Es Campur</p>
@@ -96,12 +206,20 @@ export default function Main() {
                 <p className="text-lg text-[#EC7FA9]">
                   Jumlah : <span className="font-bold">{esCampur}</span>
                 </p>
-                <button
-                  onClick={handleEsCampur}
-                  className="bg-[#EC7FA9] text-white px-4 py-2 rounded-lg mt-2 cursor-pointer hover:bg-[#eC7FA9e5] "
-                >
-                  Tambah
-                </button>
+                <div className="flex flex-row gap-2">
+                  <button
+                    onClick={handleEsCampur}
+                    className="bg-[#EC7FA9] grow text-white px-4 py-2 rounded-lg mt-2 cursor-pointer hover:bg-[#eC7FA9e5] "
+                  >
+                    +
+                  </button>
+                  <button
+                    onClick={handleEsCampurKurang}
+                    className="bg-[#EC7FA9] grow text-white px-4 py-2 rounded-lg mt-2 cursor-pointer hover:bg-[#eC7FA9e5] "
+                  >
+                    -
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -129,11 +247,19 @@ export default function Main() {
             </div>
             <div>
               <button
-                onClick={handleOrder}
+                onClick={isEditMode ? handleEditOrder : handleOrder}
                 className="bg-[#EB5A3C] text-white px-4 py-2 rounded-lg w-full cursor-pointer hover:bg-[#eb593ce7]"
               >
-                Tambah Orderan
+                {isEditMode ? 'Edit Orderan' : 'Tambah Orderan'}
               </button>
+              {isEditMode && (
+                <button
+                  onClick={handleBatalEditMode}
+                  className="bg-[#EB5A3C] text-white px-4 py-2 rounded-lg w-full cursor-pointer hover:bg-[#eb593ce7] mt-4"
+                >
+                  Batal
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -196,6 +322,41 @@ export default function Main() {
                       </p>
                     </div>
                   )}
+                </div>
+                <div className="flex flex-row gap-2">
+                  <button
+                    onClick={() => handleEditMode(order)}
+                    className="bg-[#EB5A3C] text-white px-4 py-2 rounded-lg w-full cursor-pointer hover:bg-[#eb593ce7]"
+                  >
+                    Edit Order
+                  </button>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <button className="bg-[#BE5985] text-white px-4 py-2 rounded-lg w-full cursor-pointer hover:bg-[#be5985d2]">
+                        Hapus Order
+                      </button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Hapus Order</DialogTitle>
+                        <DialogDescription>
+                          Apakah anda yakin ingin menghapus orderan ini?
+                        </DialogDescription>
+                      </DialogHeader>
+                      <DialogFooter>
+                        <DialogClose asChild>
+                          <button
+                            className="bg-[#BE5985] text-white px-4 py-2 rounded-lg w-full cursor-pointer hover:bg-[#be5985d2]"
+                            onClick={() => {
+                              handleHapusOrder(order.nomor);
+                            }}
+                          >
+                            Hapus
+                          </button>
+                        </DialogClose>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
                 </div>
               </div>
             ))}
