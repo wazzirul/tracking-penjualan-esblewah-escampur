@@ -189,7 +189,7 @@ export default function Main() {
                     </p>
                   </div>
                   {order.catatan && (
-                    <div className="flex flex-row gap-2">
+                    <div className="flex flex-col gap-2">
                       <p className="text-lg text-[#EB5A3C]">Catatan : </p>
                       <p className="text-lg font-medium text-[#EB5A3C]">
                         {order.catatan}
