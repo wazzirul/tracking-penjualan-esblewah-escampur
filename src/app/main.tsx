@@ -61,33 +61,33 @@ export default function Main() {
     });
   };
 
-  const formatWaktu = (value: string | Date) => {
-    const date = new Date(value);
+  // const formatWaktu = (value: string | Date) => {
+  //   const date = new Date(value);
 
-    const detik = date.getSeconds().toString().padStart(2, '0');
-    const jam = date.getHours().toString().padStart(2, '0');
-    const menit = date.getMinutes().toString().padStart(2, '0');
-    const hari = date.getDate().toString().padStart(2, '0');
+  //   const detik = date.getSeconds().toString().padStart(2, '0');
+  //   const jam = date.getHours().toString().padStart(2, '0');
+  //   const menit = date.getMinutes().toString().padStart(2, '0');
+  //   const hari = date.getDate().toString().padStart(2, '0');
 
-    const bulan = [
-      'Januari',
-      'Februari',
-      'Maret',
-      'April',
-      'Mei',
-      'Juni',
-      'Juli',
-      'Agustus',
-      'September',
-      'Oktober',
-      'November',
-      'Desember',
-    ][date.getMonth()];
+  //   const bulan = [
+  //     'Januari',
+  //     'Februari',
+  //     'Maret',
+  //     'April',
+  //     'Mei',
+  //     'Juni',
+  //     'Juli',
+  //     'Agustus',
+  //     'September',
+  //     'Oktober',
+  //     'November',
+  //     'Desember',
+  //   ][date.getMonth()];
 
-    const tahun = date.getFullYear();
+  //   const tahun = date.getFullYear();
 
-    return `${jam}:${menit}:${detik}, ${hari} ${bulan} ${tahun}`;
-  };
+  //   return `${jam}:${menit}:${detik}, ${hari} ${bulan} ${tahun}`;
+  // };
 
   const handleOrder = () => {
     const newOrder = {
