@@ -32,6 +32,7 @@ export default function Main() {
   const [esBlewah, setEsBlewah] = useState(0);
   const [esCampur, setEsCampur] = useState(0);
   const [catatan, setCatatan] = useState('');
+  const [pesanError, setPesanError] = useState('');
 
   const [orderan, setOrderan] = useState<OrderanProps[]>(() => {
     if (typeof window !== 'undefined') {
@@ -97,6 +98,10 @@ export default function Main() {
   };
 
   const handleOrder = () => {
+    if (esBlewah === 0 && esCampur === 0) {
+      setPesanError('Jumlah es tidak boleh kosong');
+      return;
+    }
     const newOrder = {
       nomor: orderan.length + 1,
       esBlewah,
@@ -109,6 +114,7 @@ export default function Main() {
     setEsBlewah(0);
     setEsCampur(0);
     setCatatan('');
+    setPesanError('');
   };
 
   const handleHapusOrder = (nomor: number) => {
@@ -141,6 +147,10 @@ export default function Main() {
   };
 
   const handleEditOrder = () => {
+    if (esBlewah === 0 && esCampur === 0) {
+      setPesanError('Jumlah es tidak boleh kosong');
+      return;
+    }
     const updatedOrderan = orderan.map((order) => {
       if (order.nomor === nomor) {
         return {
@@ -158,6 +168,7 @@ export default function Main() {
     setCatatan('');
     setNomor(null);
     setIsEditMode(false);
+    setPesanError('');
   };
 
   const handleResetOrderan = () => {
@@ -187,7 +198,7 @@ export default function Main() {
         {/* Section Tambah Orderan */}
         <div
           id="form"
-          className="flex flex-col items-stretch border bg-white border-2 border-[#EB5A3C] w-full lg:max-w-2xl mt-10 min-h-16 rounded-2xl p-4 gap-8"
+          className="flex flex-col items-stretch border bg-white border-2 border-[#EB5A3C] w-full max-w-2xl mt-10 min-h-16 rounded-2xl p-4 gap-8"
         >
           <div
             className="flex flex-col lg:flex-row gap-8 lg:items-center justify-between
@@ -264,6 +275,14 @@ export default function Main() {
             ></textarea>
           </div>
           <div className="flex flex-col gap-2">
+            {pesanError && (
+              <div className="flex flex-row gap-1 text-center">
+                <p className="text-lg text-[#EB5A3C]">Pesan Error : </p>
+                <p className="text-lg text-[#EB5A3C] text-center">
+                  {pesanError}
+                </p>
+              </div>
+            )}
             <div className="flex flex-col gap-2">
               <p className="text-lg text-[#EB5A3C]">
                 Total Harga :{' '}
@@ -291,7 +310,7 @@ export default function Main() {
           </div>
         </div>
         {/* Section List Orderan */}
-        <div className="flex flex-col items-stretch border bg-white border-2 border-[#EB5A3C] w-full lg:max-w-2xl mt-10 min-h-16 rounded-2xl p-4 gap-8">
+        <div className="flex flex-col items-stretch border bg-white border-2 border-[#EB5A3C] w-full max-w-2xl mt-10 min-h-16 rounded-2xl p-4 gap-8">
           <div className="flex flex-col gap-2 ">
             <p className="text-2xl font-bold text-[#EB5A3C]">List Orderan</p>
             <p className="text-lg font-medium text-[#EB5A3C]">
@@ -325,22 +344,22 @@ export default function Main() {
                   {formatWaktu(order.dateTime)}
                 </p>
                 <div className="flex flex-col gap-2">
-                  <div className="flex flex-row gap-2">
-                    <p className="text-lg text-[#EB5A3C]">
-                      Jumlah Es Blewah :{' '}
-                    </p>
-                    <p className="text-lg font-medium text-[#EB5A3C]">
-                      {order.esBlewah}
-                    </p>
-                  </div>
-                  <div className="flex flex-row gap-2">
-                    <p className="text-lg text-[#EB5A3C]">
-                      Jumlah Es Campur :{' '}
-                    </p>
-                    <p className="text-lg font-medium text-[#EB5A3C]">
-                      {order.esCampur}
-                    </p>
-                  </div>
+                  {order.esBlewah > 0 && (
+                    <div className="flex flex-row gap-2">
+                      <p className="text-lg text-[#EB5A3C]">Es Blewah : </p>
+                      <p className="text-lg font-medium text-[#EB5A3C]">
+                        {order.esBlewah}
+                      </p>
+                    </div>
+                  )}
+                  {order.esCampur > 0 && (
+                    <div className="flex flex-row gap-2">
+                      <p className="text-lg text-[#EB5A3C]">Es Campur : </p>
+                      <p className="text-lg font-medium text-[#EB5A3C]">
+                        {order.esCampur}
+                      </p>
+                    </div>
+                  )}
                   {order.catatan && (
                     <div className="flex flex-col gap-2">
                       <p className="text-lg text-[#EB5A3C]">Catatan : </p>
@@ -392,7 +411,7 @@ export default function Main() {
 
         <Dialog>
           <DialogTrigger asChild>
-            <button className="bg-[#BE5985] text-white mt-10 px-4 py-2 rounded-lg w-full cursor-pointer hover:bg-[#be5985d2]">
+            <button className="bg-[#BE5985] text-white mt-10 px-4 py-2 rounded-lg w-full max-w-2xl cursor-pointer hover:bg-[#be5985d2]">
               Reset Orderan
             </button>
           </DialogTrigger>
