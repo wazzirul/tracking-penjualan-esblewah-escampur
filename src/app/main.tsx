@@ -28,7 +28,7 @@ interface OrderanProps {
 
 export default function Main() {
   const [isEditMode, setIsEditMode] = useState(false);
-  const [nomor, setNomor] = useState<Number | null>(null);
+  const [nomor, setNomor] = useState<number | null>(null);
   const [esBlewah, setEsBlewah] = useState(0);
   const [esCampur, setEsCampur] = useState(0);
   const [catatan, setCatatan] = useState('');
@@ -109,7 +109,7 @@ export default function Main() {
     setOrderan(updatedOrderan);
   };
 
-  const handleEditMode = (item: any) => {
+  const handleEditMode = (item: OrderanProps) => {
     const order = orderan.find((order) => order.nomor === item.nomor);
     if (order) {
       setNomor(order.nomor);
