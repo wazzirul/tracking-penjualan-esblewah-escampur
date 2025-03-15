@@ -295,7 +295,8 @@ export default function Main() {
                   </span>
                 </div>
                 <p className="text-lg text-[#EB5A3C]">
-                  {formatWaktu(order.dateTime)}
+                  {/* {formatWaktu(order.dateTime)} */}
+                  {order.dateTime}
                 </p>
                 <div className="flex flex-col gap-2">
                   <div className="flex flex-row gap-2">
